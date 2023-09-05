@@ -21,12 +21,22 @@ resource backupRSV 'Microsoft.RecoveryServices/vaults@2022-02-01' = {
   properties: {}
 }
 
-resource backupRsvNameconfig 'Microsoft.RecoveryServices/vaults/backupstorageconfig@2022-02-01' = {
+resource backupRsvStorageConfig 'Microsoft.RecoveryServices/vaults/backupstorageconfig@2022-02-01' = {
   parent: backupRSV
   name: 'vaultstorageconfig'
   properties: {
     storageModelType: 'GeoRedundant'
     crossRegionRestoreFlag: true
+  }
+}
+
+resource backupRsvConfig 'Microsoft.RecoveryServices/vaults/BackupConfig@2022-02-01' = {
+  parent: backupRSV
+  name: 'vaultconfig'
+  properties: {
+    enhancedSecurityState:  'Disabled'
+    isSoftDeleteFeatureStateEditable: true
+    softDeleteFeatureState: 'Disabled'    
   }
 }
 

@@ -3,11 +3,20 @@
 targetScope = 'resourceGroup'
 
 param location string 
-param workspaceID string
 
 var vmSubnetName = 'snet-vms'
-var secondaryVnetName = 'vnet-secondary' 
+var secondaryVnetName = 'vnet-secondary'
+var secondaryTestVnetName = 'vnet-secondary-test' 
 var secVmNsgName = 'nsg-vms'
+
+resource secVmNsg 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
+  name: secVmNsgName
+  location: location
+  properties: {
+    securityRules: [       
+    ]
+  }
+}
 
 resource secondaryVnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: secondaryVnetName
@@ -32,11 +41,25 @@ resource secondaryVnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   }  
 }
 
-resource secVmNsg 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
-  name: secVmNsgName
+resource secondaryTestVnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
+  name: secondaryTestVnetName
   location: location
   properties: {
-    securityRules: [       
+    addressSpace: {
+      addressPrefixes: [
+        '10.200.0.0/16'
+      ]
+    }
+    subnets: [
+      {
+        name: vmSubnetName
+        properties: {
+          addressPrefix: '10.200.0.0/24'
+          networkSecurityGroup: {
+            id: secVmNsg.id
+          }
+        }
+      }
     ]
-  }
+  }  
 }

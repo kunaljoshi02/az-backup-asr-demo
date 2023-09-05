@@ -32,7 +32,7 @@ param backupRsvName string = 'rsv-backup-${nameSuffix}'
 param backupVltName string = 'bvault-backup-${nameSuffix}'
 
 @description('Name of the Recovery Servcies Vault resource for ASR.')
-param asrName string = 'rsv-asr-${nameSuffix}'
+param asrRsvName string = 'rsv-asr-${nameSuffix}'
 
 @description('Username for the Virtual Machines.')
 param adminUsername string
@@ -70,11 +70,15 @@ resource backupRg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: backupRgName
   location: asrPrimaryLocation
   tags: tags
+  
 }
 
 //Deploying Log Analytics Worksapce in Primary Location
 module logAnalytics './modules/logWorkspace.bicep' = {
   name: 'logAnalyticsDeployment'
+  dependsOn: [
+    asrPrimaryRg
+  ]
   scope: resourceGroup(asrPrimaryResourcesRgName)
   params: {    
     location: asrPrimaryLocation
@@ -85,7 +89,7 @@ module logAnalytics './modules/logWorkspace.bicep' = {
 module backup './modules/backup.bicep' = {
   name: 'backupDeployment'
   dependsOn: [
-    asrRg
+    backupRg
     logAnalytics
   ]
   scope: resourceGroup(backupRgName) 
@@ -106,25 +110,22 @@ module asr './modules/asr.bicep' = {
   ]
   scope: resourceGroup(asrRgName) 
   params: {    
-    asrName: asrName
+    asrRsvName: asrRsvName
     location: asrSecondaryLocation
     workspaceID: logAnalytics.outputs.LogAnalyticsWorkspaceID
   }
 }
 
 // Deploying Resources for Primary Location
-module asrPrimaryResources './modules/asrPrimaryResources.bicep' = {
+module PrimaryResources './modules/asrPrimaryResources.bicep' = {
   name: 'primaryAsrDeployment'
   dependsOn: [
-    asrRg
     asrPrimaryRg
-    backupRg
     logAnalytics
   ]
   scope: resourceGroup(asrPrimaryResourcesRgName) 
   params: {    
     location: asrPrimaryLocation
-    workspaceID: logAnalytics.outputs.LogAnalyticsWorkspaceID
     adminUsername: adminUsername
     adminPassword: adminPassword
   }
@@ -135,12 +136,11 @@ module asrPrimaryResources './modules/asrPrimaryResources.bicep' = {
 module asrSecondaryResources './modules/asrSecondaryResources.bicep' = {
   name: 'asrDeployment'
   dependsOn: [
-    asrRg
+    asrSecondaryRg
     logAnalytics
   ]
   scope: resourceGroup(asrSecondaryResourcesRgName) 
   params: {    
-    location: asrSecondaryLocation
-    workspaceID: logAnalytics.outputs.LogAnalyticsWorkspaceID
+    location: asrSecondaryLocation    
     }
 }

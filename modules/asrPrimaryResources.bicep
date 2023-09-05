@@ -6,15 +6,14 @@ param location string
 param adminUsername string 
 @secure()
 param adminPassword string
-param workspaceID string
 
 var primaryVnetName = 'vnet-primary' 
 var bastionHostName = 'bas-Bastion'
 var publicIpAddressName = '${bastionHostName}-pip'
 var bastionSubnetName = 'AzureBastionSubnet'
 var vmSubnetName = 'snet-vms'
-var windowsVm1Name = 'VMW-ASR-01'
-var linuxVm1Name = 'VML-ASR-01'
+var windowsVm1Name = 'VM-WINDOWS-01'
+var linuxVm1Name = 'VM-LINUX-01'
 var bastionNsgName = 'nsg-${bastionSubnetName}'
 var vmNsgName = 'nsg-vms'
 
@@ -371,6 +370,3 @@ resource linuxVm1 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     }
   }
 }
-
-
-
