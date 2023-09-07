@@ -5,7 +5,7 @@ targetScope = 'subscription'
 /******************************/
 
 @description('The common suffix used when naming resources')
-param nameSuffix string = 'demo'
+param nameSuffix string = 'demo2'
 
 @description('Primary Region for ASR e.g EastUS, WestUS etc.')
 param asrPrimaryLocation string = 'eastus'
